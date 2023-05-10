@@ -14,7 +14,6 @@ const supabase = createClient(
 );
 
 export async function login(req: Request, res: Response) {
-    console.log("login");
     //get email and password from the body
     const { email, password } = req.body;
     //check if email and password are present
@@ -76,6 +75,7 @@ export async function register(req: Request, res: Response) {
     //check if email and password are present
     if (!email || !password) {
         res.status(400).json({ message: "Email and password are required" });
+        return;
     }
 
     //encrypt passsword with crypto-js
@@ -154,6 +154,7 @@ export function getProfile(req: Request, res: Response) {
 export async function getEvent(req: Request, res: Response) {
     if (!req.params.eventId) {
         res.status(400).json({ message: "Event id is required" });
+        return;
     }
 
     //get event from supabase
@@ -186,6 +187,7 @@ export async function createEvent(req: Request, res: Response) {
     //check if event data is present
     if (!startDate || !endDate || !name || !candidates) {
         res.status(400).json({ message: "Event data is required" });
+        return;
     }
 
     //insert event to database
@@ -217,6 +219,7 @@ export async function addCandidate(req: Request, res: Response) {
 
     if (!eventId) {
         res.status(400).json({ message: "Event id is required" });
+        return;
     }
 
     //get event from supabase
@@ -276,6 +279,7 @@ export async function vote(req: Request, res: Response) {
         res.status(400).json({
             message: "Event id and candidate id are required",
         });
+        return;
     }
 
     //get event from supabase
@@ -298,6 +302,7 @@ export async function vote(req: Request, res: Response) {
         )
     ) {
         res.status(404).json({ message: "Candidate not found" });
+        return;
     }
 
     //get user voted events from supabase
@@ -318,6 +323,7 @@ export async function vote(req: Request, res: Response) {
 
     if (user?.votedEvents.includes(eventId)) {
         res.status(400).json({ message: "You already voted this event" });
+        return;
     }
 
     event?.candidates.forEach((candidate: any) => {
