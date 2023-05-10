@@ -1,21 +1,16 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
-import {
-    login,
-    register,
-    getProfile,
-    getEvent,
-    addCandidate,
-    vote,
-    createEvent,
-} from "./dummy";
+import * as dummy from "./dummy";
+import * as production from "./production";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,8 +31,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 //dummy route
-app.post("/dummy/login", login);
-app.post("/dummy/register", register);
+app.post("/dummy/login", dummy.login);
+app.post("/dummy/register", dummy.register);
+app.post("/v1/login", production.login);
+app.post("/v1/register", production.register);
 
 //authorization middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -60,9 +57,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.get("/dummy/profile", getProfile);
-app.get("/dummy/event/:eventId", getEvent);
-app.post("/dummy/event/:eventId/vote/:candidateId", vote);
+app.get("/dummy/profile", dummy.getProfile);
+app.get("/dummy/event/:eventId", dummy.getEvent);
+app.post("/dummy/event/:eventId/vote/:candidateId", dummy.vote);
+
+app.get("/v1/profile", dummy.getProfile);
+app.get("/v1/event/:eventId", production.getEvent);
+app.post("/v1/event/:eventId/vote/:candidateId", production.vote);
 
 //check role middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -79,8 +80,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.post("/dummy/event", createEvent);
-app.post("/dummy/event/:eventId/candidate", addCandidate);
+app.post("/dummy/event", dummy.createEvent);
+app.post("/dummy/event/:eventId/candidate", dummy.addCandidate);
+
+app.post("/v1/event", production.createEvent);
+app.post("/v1/event/:eventId/candidate", production.addCandidate);
 
 //handle error
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
